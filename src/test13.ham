@@ -1,0 +1,23 @@
+/*====================================================================================
+  File:       test13
+  Board:      Digilent Spartan 3 demo board
+  Designer:   Victor Yurkovsky  
+  Date:       September 5 2012
+
+ // 8-bit counter (now in Spartan3) to 8 leds.
+===================================================================================*/
+#include "DigilentSpartan3.ham"
+
+
+top() {
+  clk CLK_1Hz;
+  pc Ctr8 loc:xy(10,10);
+  
+  wire clk's CLK to pc's CLK;
+  wire my vcc to pc's CIN;
+ 
+  led Leds;
+  wire pc's OUT[0:7] to led's IN[0:7];
+
+}
+ 

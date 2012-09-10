@@ -1,0 +1,54 @@
+ /*====================================================================================
+  File:       testrig0
+  Board:      Digilent Spartan 3 demo board
+  Designer:   Victor Yurkovsky  
+  Date:       September 7 2012
+
+    This design exercises 16-bit output to the testrig.  The 16-bit input from sw and
+    constants is muxed 16:4 and output onto a 6-wire debug port.  The output consists
+    of a 4-bit nybble and 2-bit digit select.
+  
+====================================================================================*/
+#include "DigilentSpartan3.ham"
+
+top() {
+  clk CLK_1Hz;
+  // Debug output
+  but Buttons;
+  sw Switches;
+  
+  m0 Mux4 loc:xy(10,10);
+  m1 Mux4 loc:xy(10,11);
+  m2 Mux4 loc:xy(10,12);
+  m3 Mux4 loc:xy(10,13);
+  
+  bug BugOut;
+  
+  wire m0's OUT to bug's IN[0];
+  wire m1's OUT to bug's IN[1];
+  wire m2's OUT to bug's IN[2];
+  wire m3's OUT to bug's IN[3];
+
+  counter Ctr2 loc:xy(9,10);
+  wire clk's CLK to counter's CLK;
+  wire my vcc to counter's CIN;
+  wire counter's OUT[0:1]
+//wire but OUT[0:1] 
+    to bug's SEL[0:1],m0's SEL[0:1],m1's SEL[0:1],m2's SEL[0:1],m3's SEL[0:1];
+  
+  wire sw OUT[0] to m0's IN[0];
+  wire sw OUT[1] to m1's IN[0];
+  wire sw OUT[2] to m2's IN[0];
+  wire sw OUT[3] to m3's IN[0];
+  //sw to digit 1
+  wire sw OUT[4] to m0's IN[1];
+  wire sw OUT[5] to m1's IN[1];
+  wire sw OUT[6] to m2's IN[1];
+  wire sw OUT[7] to m3's IN[1];
+  
+  // 3 to digit 3
+  wire my vcc to m0's IN[2],m1's IN[2]; wire my gnd to m2's IN[2], m3's IN[2]; 
+  // F to digit 4
+  wire my vcc to m0's IN[3], m1's IN[3],m2's IN[3],m3's IN[3];
+}
+ 

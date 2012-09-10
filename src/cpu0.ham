@@ -1,0 +1,138 @@
+// FPGA Hammer test
+#include "DigilentSpartan3.ham"
+/*====================================================================================
+  cpu0
+  
+  Starting out.  pc
+====================================================================================*/
+/*====================================================================================
+  pc
+  
+  The pc is an incrementor implemented in the carry logic.  The luts can implement
+  a mux allowing us to jump to a target address or a return address. So here it is:
+       _                   _     ___        
+  V0--| \____VECTOR__VIN--| \___|  |___PCOUT
+  V1--|_/           PCIN--|_/   |__|        
+  VSEL_|            SEQ____/     /
+                    RESET--------/          
+                    IRQ----------/          
+                    PCEN---------/          
+  The PCIN and PCOUT are looped internally.  SEQ forces the sequential count.
+====================================================================================*/
+/*====================================================================================
+  2-bit PC with a vector input.
+  Designer:   Victor Yurkovsky  
+  Date:       September 6 2012
+
+inputs:
+  CLK - system clock
+  SEQ - mux control: 1 = count, 2=vector.
+  VEC - vector input
+  CIN - carry in. For the lowest circuit, it's count control.
+outputs:
+  PC  - count or vector output
+  COUT- carry to connect to higher bits.  
+  
+  Note: we are using logic notation for the LUT inputs.  This allows PAR to swap LUT
+  input pins.  To fix the pins, use 0x0000 initialization notation.
+====================================================================================*/
+Pc2(loc) input:(CLK,SEQ,VEC[2],CIN) output:(PC[2],COUT){
+  sl SLICEL loc:xy(0,0) cfg:{ CLKINV:CLK COUTUSED:0 CYINIT:CIN 
+    CY0G:0 CYSELG:G DYMUX:1 GYMUX:GXOR FFY:#FF FFY_INIT_ATTR:INIT0 G:#LUT:D=(~A3*A2)+(A3*A1)
+    CY0F:0 CYSELF:F DXMUX:1 FXMUX:FXOR FFX:#FF FFX_INIT_ATTR:INIT0 F:#LUT:D=(~A3*A2)+(A3*A1)  
+  };  
+  wire my CLK to sl's CLK;
+  wire my vcc to sl's CIN;
+  wire sl's COUT to my COUT;
+  // lower part, known as F and X is low bit.  Upper half, G and Y is high bit 
+  wire my VEC[0] to his F1;
+  wire my VEC[1] to his G1;
+  wire my SEQ to his G3, his F3;  //SEQ   1 means count (A2). 0 means vector(A1);
+  wire his XQ to his F2, my PC[0];  //complete the PC loop on A2
+  wire his YQ to his G2, my PC[1];
+}
+/*====================================================================================
+  10-bit PC with a vector input.
+  Designer:   Victor Yurkovsky  
+  Date:       September 6 2012
+shape:
+  1x5
+inputs:
+  CLK - system clock
+  SEQ - mux control: 1 = count, 2=vector.
+  VEC - vector input
+  CIN - carry in. For the lowest circuit, it's count control.
+outputs:
+  PC  - count or vector output
+  COUT- carry to connect to higher bits.  
+  
+  Note: we are using logic notation for the LUT inputs.  This allows PAR to swap LUT
+  input pins.  To fix the pins, use 0x0000 initialization notation.
+====================================================================================*/
+Pc10(loc) input:(CLK,SEQ,VEC[10],DOCNT) output:(PC[10]){
+  pca Pc2 loc:xy(0,0);
+  pcb Pc2 loc:xy(0,1);
+  pcc Pc2 loc:xy(0,2);
+  pcd Pc2 loc:xy(0,3);
+  pce Pc2 loc:xy(0,4);
+  //clocking
+  wire my CLK to pca's CLK, pcb's CLK, pcc's CLK, pcd's CLK, pce's CLK;
+  //carry propagation
+  wire my DOCNT to pca's CIN; //initial carry in controls counting.
+  wire pca's COUT to pcb's CIN;
+  wire pcb's COUT to pcc's CIN;
+  wire pcc's COUT to pcd's CIN;
+  wire pcd's COUT to pce's CIN;
+  //SEQ is shared across all pc units
+  wire my SEQ to pca's SEQ, pcb's SEQ, pcc's SEQ, pcd's SEQ, pce's SEQ;
+  //Vector is routed 2 bits per unit
+  wire my VEC[0:1] to pca's VEC[0:1];
+  wire my VEC[2:3] to pcb's VEC[0:1];
+  wire my VEC[4:5] to pcc's VEC[0:1];
+  wire my VEC[6:7] to pcd's VEC[0:1];
+  wire my VEC[8:9] to pce's VEC[0:1];
+  //finally, gather the outputs
+  wire pca's PC[0:1] to my PC[0:1];
+  wire pcb's PC[0:1] to my PC[2:3];
+  wire pcc's PC[0:1] to my PC[4:5];
+  wire pcd's PC[0:1] to my PC[6:7];
+  wire pce's PC[0:1] to my PC[8:9];
+  
+}
+top() {
+  clk CLK_1Hz;
+  //-------------------------------
+  // PC  
+  pc Pc2 loc:xy(3,2);  //OUT[0] will connect to ram's A3... Moving pc a bit up.
+  wire clk's CLK to pc's CLK;
+//  wire my vcc to pc's CIN;
+  //-------------------------------
+  // Leds 
+  led0 Led0;
+  led1 Led1;
+  sw0 Switch0;
+  sw1 Switch1;
+  sw2 Switch2;
+  wire sw0's OUT to pc's VEC[0];
+  wire sw1's OUT to pc's VEC[1];
+  wire sw2's OUT to pc's SEQ;
+  wire pc's PC[0] to led0's IN;
+  wire pc's PC[1] to led1's IN;
+  wire my vcc to pc's CIN;
+  //-------------------------------
+  // RAM 
+/*  ram Ramb16_S18 loc:RAMB16_X0Y0 fromfile:testram.txt ;
+  wire my vcc to ram's EN;
+  wire my vcc to ram's WE, ram's SSR; //we is active low.  SSR is active low
+  wire clk's CLK to ram's CLK;
+*/  //-------------------------------
+  // Now connect the units.
+//  wire pc's OUT[0:9] to ram's A[0:9];
+//  sw Switches;
+//  wire sw's OUT[0:7] to ram's A[0:7];
+//  wire my gnd to ram's A[8], ram's A[9];
+//  wire ram's DO[0:7] to led's IN[0:7];
+  //wire pc's PC[0:1] to led's IN;
+
+}
+ 

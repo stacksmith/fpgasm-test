@@ -1,0 +1,42 @@
+
+#include "DigilentSpartan3.ham"
+//====================================================================================
+// Test10.  Connect 8 sitches to 8 LEDs, accordingly.
+//====================================================================================
+
+/*===================================================================================
+ Ctr2 
+ A a 2-bit counter in one slice.  Use this as the low 2 bits - we introduce the
+ PULSE signal int the carry chain...
+===================================================================================*/
+Ctr2init(loc) input:(CLK,CIN) output:(OUT[2],COUT){
+  slice SLICEL cfg:(BXINV:BX CLKINV:CLK COUTUSED:0 CYINIT:BX 
+    CY0G:G1 CYSELG:G DYMUX:1 GYMUX:GXOR FFX:#FF FFX_INIT_ATTR:INIT0 G:#LUT:D=0xAAAA  
+    CY0F:F1 CYSELF:F DXMUX:1 FXMUX:FXOR FFY:#FF FFY_INIT_ATTR:INIT0 F:#LUT:D=0xAAAA      
+    );  
+  wire my CLK   to his CLK;
+  wire my PULSE to his BX;      //carry in path via BX
+  wire his COUT to my  COUT;
+  wire his XQ to his F1, to my OUT[0]; // close counter loop
+  wire his YQ to his G1, my OUT[1]; 
+  
+  wire my VCC to his F2,his F3,his F4,his G2,his G3, his G4;
+  
+}
+
+
+top() {
+  clk CLK_1Hz;
+  ctr Ctr2init loc:xy(10,10);
+  
+  wire clk's CLK to ctr's CLK;
+  wire my VCC to ctr's PULSE;
+
+//  sw Switches;
+  led0 Led0;
+  led1 Led1;
+  wire ctr's OUT[0] to led0's IN;
+  wire ctr's OUT[1] to led1's IN;
+
+}
+ 

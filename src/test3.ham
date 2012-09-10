@@ -1,0 +1,28 @@
+/*====================================================================================
+  File:       test3
+  Board:      Digilent Spartan 3 demo board
+  Designer:   Victor Yurkovsky  
+  Date:       September 1 2012
+
+  So here is an SRL16, a shift register.  An led shows its output
+====================================================================================*/
+#include "DigilentSpartan3.ham"
+//====================================================================================
+// Goal: use an SRL to pulse every 4 clocks or so
+//====================================================================================
+top() {
+  clkin InSimple loc:L15 ;
+  clkbuf Bufg loc:BUFGMUX0 ;
+  wire clkin's OUT to clkbuf's IN;
+  
+ led Led7;
+  //now let's feed an SRL
+ srl Gsrl loc:xy(20,20) data:0x0001;
+ wire clkbuf's OUT to his CLK;
+ wire his OUT to his IN;
+// tapping 0010
+ wire my gnd to his TAP0, his TAP1,  his TAP3;
+ wire my vcc to his TAP2;
+ 
+ wire his OUT to led's IN;
+} 
