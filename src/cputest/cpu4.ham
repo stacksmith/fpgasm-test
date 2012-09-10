@@ -1,31 +1,11 @@
-// FPGA Hammer test
-#include "Spartan3/board/DigilentSpartan3.ham"
 /*====================================================================================
-  cpu5
+  cpu4
   
-  A Tugman-style CPU.  There are 2 internal buses to the ALU, A and B.
-    The instructions are MISC 18 bits:
-  Top 10 bits= Const or Jump target
-  low 8 bits= instruction:
-  BB - 2 bits selecting from
-      00 const
-      01 NOS
-      10 input
-      11 mem
-  OP - 2 bits, family dependent
-  A  - 1 bit
-      0  const
-      1  TOS
-  FAM - 3 bits
-      000 Logic
-      001 Arithmetic
-      010 Shift
-      011 Misc
-      111 Jump
-
--------------------------------------------------------------------------------------
-Cpu5 - jump instruction decoded
+ A simple cpu.  Bit 15 is 'JUMP'.
+ Data: 18
+ Addr: 10
 ====================================================================================*/
+#include "DigilentSpartan3.ham"
 /*====================================================================================
   pc
   
@@ -133,39 +113,39 @@ outputs:
   input pins.  To fix the pins, use 0x0000 initialization notation.
 ====================================================================================*/
 Pc10(loc) input:(CLK,JUMP,VEC[10],NOINC) output:(PC[10],UPC[10]){
-  pce Pc2 loc:xy(0,4);
-  pcd Pc2 loc:xy(0,3);
-  pcc Pc2 loc:xy(0,2);
-  pcb Pc2 loc:xy(0,1);
   pca Pc2low loc:xy(0,0);
+  pcb Pc2 loc:xy(0,1);
+  pcc Pc2 loc:xy(0,2);
+  pcd Pc2 loc:xy(0,3);
+  pce Pc2 loc:xy(0,4);
   //clocking
   wire my CLK to pca's CLK, pcb's CLK, pcc's CLK, pcd's CLK, pce's CLK;
   //carry propagation
-  wire pcd's COUT to pce's CIN;
-  wire pcc's COUT to pcd's CIN;
-  wire pcb's COUT to pcc's CIN;
-  wire pca's COUT to pcb's CIN;
   wire my NOINC to pca's NOINC; //initial carry in controls counting.
+  wire pca's COUT to pcb's CIN;
+  wire pcb's COUT to pcc's CIN;
+  wire pcc's COUT to pcd's CIN;
+  wire pcd's COUT to pce's CIN;
   //SEQ is shared across all pc units
   wire my JUMP to pca's JUMP, pcb's JUMP, pcc's JUMP, pcd's JUMP, pce's JUMP;
   //Vector is routed 2 bits per unit
-  wire my VEC[8:9] to pce's VEC[0:1];
-  wire my VEC[6:7] to pcd's VEC[0:1];
-  wire my VEC[4:5] to pcc's VEC[0:1];
-  wire my VEC[2:3] to pcb's VEC[0:1];
   wire my VEC[0:1] to pca's VEC[0:1];
+  wire my VEC[2:3] to pcb's VEC[0:1];
+  wire my VEC[4:5] to pcc's VEC[0:1];
+  wire my VEC[6:7] to pcd's VEC[0:1];
+  wire my VEC[8:9] to pce's VEC[0:1];
   //finally, gather the outputs
-  wire pce's PC[0:1] to my PC[8:9];
-  wire pcd's PC[0:1] to my PC[6:7];
-  wire pcc's PC[0:1] to my PC[4:5];
-  wire pcb's PC[0:1] to my PC[2:3];
   wire pca's PC[0:1] to my PC[0:1];
+  wire pcb's PC[0:1] to my PC[2:3];
+  wire pcc's PC[0:1] to my PC[4:5];
+  wire pcd's PC[0:1] to my PC[6:7];
+  wire pce's PC[0:1] to my PC[8:9];
 
-  wire pce's UPC[0:1] to my UPC[8:9];
-  wire pcd's UPC[0:1] to my UPC[6:7];
-  wire pcc's UPC[0:1] to my UPC[4:5];
-  wire pcb's UPC[0:1] to my UPC[2:3];
   wire pca's UPC[0:1] to my UPC[0:1];
+  wire pcb's UPC[0:1] to my UPC[2:3];
+  wire pcc's UPC[0:1] to my UPC[4:5];
+  wire pcd's UPC[0:1] to my UPC[6:7];
+  wire pce's UPC[0:1] to my UPC[8:9];
 
 }
 top() {

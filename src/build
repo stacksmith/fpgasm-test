@@ -1,3 +1,0 @@
-rm ../xdl/test.xdl
-fpgasm $1.ham ../xdl/test.xdl
-make -C ../xdl/ $2

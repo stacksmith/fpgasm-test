@@ -1,12 +1,13 @@
-// FPGA Hammer test
-#include "Spartan3/board/DigilentSpartan3.ham"
 /*====================================================================================
-  cpu4
+  cpu1
   
- A simple cpu.  Bit 15 is 'JUMP'.
- Data: 18
- Addr: 10
+  A 10-bit pc generates an address to an 18-bit RAM.  The output of the ram
+  is going to LEDs.  SW[7] is SEQ; SW[0:6] are vector (high bits 0).
+  Note the pattern 0,1,3,4 that repeats a few times, from ram (see testram.txt).
+  toggling SW7 with the rest of the switches at 0 resets the program.
+  Note that vector will load as vector+1 as long as DOCNT is 1.
 ====================================================================================*/
+#include "DigilentSpartan3.ham"
 /*====================================================================================
   pc
   
@@ -28,7 +29,7 @@
 
 inputs:
   CLK - system clock
-  SEQ - mux control: 0 = count, 1=vector.
+  SEQ - mux control: 1 = count, 2=vector.
   VEC - vector input
   CIN - carry in. For the lowest circuit, it's count control.
 outputs:
@@ -38,10 +39,10 @@ outputs:
   Note: we are using logic notation for the LUT inputs.  This allows PAR to swap LUT
   input pins.  To fix the pins, use 0x0000 initialization notation.
 ====================================================================================*/
-Pc2(loc) input:(CLK,JUMP,VEC[2],CIN) output:(PC[2],UPC[2]/*unflopped*/,COUT){
+Pc2(loc) input:(CLK,SEQ,VEC[2],CIN) output:(PC[2],COUT){
   sl SLICEL loc:xy(0,0) cfg:{ CLKINV:CLK COUTUSED:0 CYINIT:CIN 
-    YUSED:0 CY0G:0 CYSELG:G DYMUX:1 GYMUX:GXOR FFY:#FF FFY_INIT_ATTR:INIT0 G:#LUT:D=(~A3*A2)+(A3*A1)
-    XUSED:0 CY0F:0 CYSELF:F DXMUX:1 FXMUX:FXOR FFX:#FF FFX_INIT_ATTR:INIT0 F:#LUT:D=(~A3*A2)+(A3*A1)  
+    CY0G:0 CYSELG:G DYMUX:1 GYMUX:GXOR FFY:#FF FFY_INIT_ATTR:INIT0 G:#LUT:D=(~A3*A2)+(A3*A1)
+    CY0F:0 CYSELF:F DXMUX:1 FXMUX:FXOR FFX:#FF FFX_INIT_ATTR:INIT0 F:#LUT:D=(~A3*A2)+(A3*A1)  
   };  
   wire my CLK to sl's CLK;
   wire my CIN to sl's CIN;
@@ -49,52 +50,10 @@ Pc2(loc) input:(CLK,JUMP,VEC[2],CIN) output:(PC[2],UPC[2]/*unflopped*/,COUT){
   // lower part, known as F and X is low bit.  Upper half, G and Y is high bit 
   wire my VEC[0] to his F1;
   wire my VEC[1] to his G1;
-  wire my JUMP to his G3, his F3;  //SEQ   1 means count (A2). 0 means vector(A1);
-  //flopped PC is fed back to the input
+  wire my SEQ to his G3, his F3;  //SEQ   1 means count (A2). 0 means vector(A1);
   wire his XQ to his F2, my PC[0];  //complete the PC loop on A2
   wire his YQ to his G2, my PC[1];
-  //unflopped PC
-  wire his X to my UPC[0];
-  wire his Y to my UPC[1];
 }
-/*====================================================================================
-  2-bit PC with a vector input, low 2 bits
-  Designer:   Victor Yurkovsky  
-  Date:       September 10 2012
-
-  Low 2 bits of the PC.  NOINC input suppresses incrementor (BX inv into carry chain).
-inputs:
-  CLK - system clock
-  JUMP - mux control: 0 = count, 1=vector.
-  VEC - vector input
-  NOINC - 0=inc, 1=suppress incrementor.
-outputs:
-  PC  - count or vector output
-  COUT- carry to connect to higher bits.  
-  
-  Note: we are using logic notation for the LUT inputs.  This allows PAR to swap LUT
-  input pins.  To fix the pins, use 0x0000 initialization notation.
-*/
-Pc2low(loc) input:(CLK,JUMP,VEC[2],NOINC) output:(PC[2],UPC[2]/*unflopped*/,COUT){
-  sl SLICEL loc:xy(0,0) cfg:{ CLKINV:CLK COUTUSED:0 CYINIT:BX BXINV:BX_B 
-    YUSED:0 CY0G:0 CYSELG:G DYMUX:1 GYMUX:GXOR FFY:#FF FFY_INIT_ATTR:INIT0 G:#LUT:D=(~A3*A2)+(A3*A1)
-    XUSED:0 CY0F:0 CYSELF:F DXMUX:1 FXMUX:FXOR FFX:#FF FFX_INIT_ATTR:INIT0 F:#LUT:D=(~A3*A2)+(A3*A1)  
-  };  
-  wire my CLK to sl's CLK;
-  wire my NOINC to sl's BX;  //carry chain starts inverted
-  wire sl's COUT to my COUT;
-  // lower part, known as F and X is low bit.  Upper half, G and Y is high bit 
-  wire my VEC[0] to his F1;
-  wire my VEC[1] to his G1;
-  wire my JUMP to his G3, his F3;  //SEQ   1 means count (A2). 0 means vector(A1);
-  //flopped PC is fed back to the input
-  wire his XQ to his F2, my PC[0];  //complete the PC loop on A2
-  wire his YQ to his G2, my PC[1];
-  //unflopped PC
-  wire his X to my UPC[0];
-  wire his Y to my UPC[1];
-}
-
 /*====================================================================================
   10-bit PC with a vector input.
   Designer:   Victor Yurkovsky  
@@ -113,8 +72,8 @@ outputs:
   Note: we are using logic notation for the LUT inputs.  This allows PAR to swap LUT
   input pins.  To fix the pins, use 0x0000 initialization notation.
 ====================================================================================*/
-Pc10(loc) input:(CLK,JUMP,VEC[10],NOINC) output:(PC[10],UPC[10]){
-  pca Pc2low loc:xy(0,0);
+Pc10(loc) input:(CLK,SEQ,VEC[10],DOCNT) output:(PC[10]){
+  pca Pc2 loc:xy(0,0);
   pcb Pc2 loc:xy(0,1);
   pcc Pc2 loc:xy(0,2);
   pcd Pc2 loc:xy(0,3);
@@ -122,13 +81,13 @@ Pc10(loc) input:(CLK,JUMP,VEC[10],NOINC) output:(PC[10],UPC[10]){
   //clocking
   wire my CLK to pca's CLK, pcb's CLK, pcc's CLK, pcd's CLK, pce's CLK;
   //carry propagation
-  wire my NOINC to pca's NOINC; //initial carry in controls counting.
+  wire my DOCNT to pca's CIN; //initial carry in controls counting.
   wire pca's COUT to pcb's CIN;
   wire pcb's COUT to pcc's CIN;
   wire pcc's COUT to pcd's CIN;
   wire pcd's COUT to pce's CIN;
   //SEQ is shared across all pc units
-  wire my JUMP to pca's JUMP, pcb's JUMP, pcc's JUMP, pcd's JUMP, pce's JUMP;
+  wire my SEQ to pca's SEQ, pcb's SEQ, pcc's SEQ, pcd's SEQ, pce's SEQ;
   //Vector is routed 2 bits per unit
   wire my VEC[0:1] to pca's VEC[0:1];
   wire my VEC[2:3] to pcb's VEC[0:1];
@@ -141,41 +100,43 @@ Pc10(loc) input:(CLK,JUMP,VEC[10],NOINC) output:(PC[10],UPC[10]){
   wire pcc's PC[0:1] to my PC[4:5];
   wire pcd's PC[0:1] to my PC[6:7];
   wire pce's PC[0:1] to my PC[8:9];
-
-  wire pca's UPC[0:1] to my UPC[0:1];
-  wire pcb's UPC[0:1] to my UPC[2:3];
-  wire pcc's UPC[0:1] to my UPC[4:5];
-  wire pcd's UPC[0:1] to my UPC[6:7];
-  wire pce's UPC[0:1] to my UPC[8:9];
-
+  
 }
 top() {
   clk CLK_1Hz;
   // Debug output
-  bug BugOut16 loc:xy(6,0);
+  bug BugOut;
+  but Buttons;
+  wire but OUT[0:3] to bug IN[0:3];
   //-------------------------------
   // PC  
   pc Pc10 loc:xy(3,2);  //OUT[0] will connect to ram's A3... Moving pc a bit up.
   wire clk's CLK to pc's CLK;
-  //wire my vcc to pc's DOCNT;   //incrementor always on
+  //-------------------------------
+  // Leds 
+  led Leds;
+  sw  Switches;
+  wire sw's OUT[0:6] to pc's VEC[0:6];
+  wire sw's OUT[7] to pc's SEQ;         //jump control
+  wire my gnd to pc's VEC[7], pc's VEC[8], pc's VEC[9];
+  // leds
+//  wire pc's PC[0:7] to led's IN[0:7];
+  wire my vcc to pc's DOCNT;
   //-------------------------------
   // RAM 
-  ram Ramb16_S18 loc:RAMB16_X0Y0 fromfile:cpu4ram.txt ;
+  ram Ramb16_S18 loc:RAMB16_X0Y0 fromfile:testram.txt ;
   wire my vcc to ram's EN;
   wire my vcc to ram's WE, ram's SSR; //we is active low.  SSR is active low
   wire clk's CLK to ram's CLK;
   //-------------------------------
-  wire pc's UPC[0:9] to ram's A[0:9];
-  wire ram's DO[0:9] to pc's VEC[0:9];  //vector is coming from RAM...
-  //bit 15 1 means SEQ; otherwise VEC
-//l Led0;
-  //but Buttons;
-//wire but OUT[0] to pc's SEQ;
- wire ram's DO[15] to pc's JUMP;//, l's IN;
-//  wire ram's DO[15]/*
- wire ram's DO[15] to pc's NOINC;//, l's IN;
-  //debug output
-  wire ram's DO[0:7] to bug's IN[0:7];
-  wire pc's UPC[0:7] to bug's IN[8:15];
+  // Now connect the units.
+  wire pc's PC[0:9] to ram's A[0:9];
+  wire ram's DO[0:7] to led's IN[0:7];
+//  sw Switches;
+//  wire sw's OUT[0:7] to ram's A[0:7];
+//  wire my gnd to ram's A[8], ram's A[9];
+//  wire ram's DO[0:7] to led's IN[0:7];
+  //wire pc's PC[0:1] to led's IN;
+
 }
  

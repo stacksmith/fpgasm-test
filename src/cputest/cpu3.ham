@@ -1,4 +1,3 @@
-// FPGA Hammer test
 #include "Spartan3/board/DigilentSpartan3.ham"
 /*====================================================================================
   cpu1
@@ -9,6 +8,7 @@
   toggling SW7 with the rest of the switches at 0 resets the program.
   Note that vector will load as vector+1 as long as DOCNT is 1.
 ====================================================================================*/
+#include "DigilentSpartan3.ham"
 /*====================================================================================
   pc
   

@@ -1,0 +1,292 @@
+//====================================================================================
+// Digilent Spartan3 Starter Kit board 
+//
+//====================================================================================
+#include "xc3s200ft256.xdlrc"
+#include "Spartan3.ham"
+//====================================================================================
+// Slow (1Hz) clock for testing, coming from my testbench.
+//====================================================================================
+CLK_1Hz(std:LVTTL) output:(CLK){
+  cin InSimple loc:L15 std:!std! ;
+  clkbuf Bufg loc:BUFGMUX0 ;
+  wire cin's OUT to clkbuf's IN;
+  wire clkbuf's OUT to my CLK;
+}
+//====================================================================================
+// 50MHz clock
+//====================================================================================
+CLK_50MHz(std:LVTTL) output:(CLK){
+  cin InSimple loc:T9 std:!std! ;
+  clkbuf Bufg loc:BUFGMUX0 ;
+  wire cin's OUT to clkbuf's IN;
+  wire clkbuf's OUT to my CLK;
+}
+
+//====================================================================================
+// Buttons
+// 4 buttons
+//====================================================================================
+Buttons(std:LVTTL) output:(OUT[4]) {
+  button0 InSimple loc:M13 std:!std!;
+    wire his OUT to my OUT[0] ;
+  button1 InSimple loc:M14 std:!std!;
+    wire his OUT to my OUT[1] ;
+  button2 InSimple loc:L13 std:!std!;
+    wire his OUT to my OUT[2] ;
+  button3 InSimple loc:L14 std:!std!;
+    wire his OUT to my OUT[3] ;
+}
+/*====================================================================================
+ Switches
+ 8 sliding switches
+====================================================================================*/
+Switches(std:LVTTL) output:(OUT[8]) {
+  switch0 InSimple loc:F12 std:!std!;
+    wire switch0 OUT to my OUT[0] ;
+  switch1 InSimple loc:G12 std:!std!;
+    wire switch1 OUT to my OUT[1] ;
+  switch2 InSimple loc:H14 std:!std!;
+    wire switch2 OUT to my OUT[2] ;
+  switch3 InSimple loc:H13 std:!std!;
+    wire switch3 OUT to my OUT[3] ;
+  switch4 InSimple loc:J14 std:!std!;
+    wire switch4 OUT to my OUT[4] ;
+  switch5 InSimple loc:J13 std:!std!;
+    wire switch5 OUT to my OUT[5] ;
+  switch6 InSimple loc:K14 std:!std!;
+    wire switch6 OUT to my OUT[6] ;
+  switch7 InSimple loc:K13 std:!std!;
+    wire switch7 OUT to my OUT[7] ;
+}
+Switch0(std:LVTTL) output:(OUT){
+  sw InSimple loc:F12 std:!std!;
+  wire sw's OUT to my OUT ;
+}
+Switch1(std:LVTTL) output:(OUT){
+  sw InSimple loc:G12 std:!std!;
+  wire sw's OUT to my OUT ;
+}
+Switch2(std:LVTTL) output:(OUT){
+  sw InSimple loc:H14 std:!std!;
+  wire sw's OUT to my OUT ;
+}
+
+/*====================================================================================
+ There are 8 leds, individually listed
+====================================================================================*/
+Led0(std:LVTTL) input:(IN){
+ x OutSimple loc:K12 std:!std!;
+ wire my IN to his IN;
+}
+//====================================================================================
+Led1(std:LVTTL) input:(IN) {
+ x OutSimple loc:P14 std:!std!;
+ wire my IN to his IN;
+}
+//====================================================================================
+Led2(std:LVTTL) input:(IN) {
+ x OutSimple loc:L12 std:!std!;
+ wire my IN to his IN;
+}
+//====================================================================================
+Led3(std:LVTTL) input:(IN) {
+ x OutSimple loc:N14 std:!std!;
+ wire my IN to his IN;
+}
+//====================================================================================
+Led4(std:LVTTL) input:(IN) {
+ x OutSimple loc:P13 std:!std!;
+ wire my IN to his IN;
+}
+//====================================================================================
+Led5(std:LVTTL) input:(IN) {
+ x OutSimple loc:N12 std:!std!;
+ wire my IN to his IN;
+}
+//====================================================================================
+Led6(std:LVTTL) input:(IN) {
+ x OutSimple loc:P12 std:!std!;
+ wire my IN to his IN;
+}
+//====================================================================================
+Led7(std:LVTTL) input:(IN) {
+ x OutSimple loc:P11 std:!std! ;
+ wire my IN to his IN;
+}
+/*====================================================================================
+ Here are all 8 leds together as one unit
+====================================================================================*/
+Leds (std:LVTTL) input:(IN[8])  {
+  led0 OutSimple loc:K12 std:!std!;
+  wire my IN[0] to his IN;
+  led1 OutSimple loc:P14 std:!std!;
+  wire my IN[1] to his IN;
+  led2 OutSimple loc:L12 std:!std!;
+  wire my IN[2] to his IN;
+  led3 OutSimple loc:N14 std:!std!;
+  wire my IN[3] to his IN;
+  led4 OutSimple loc:P13 std:!std!;
+  wire my IN[4] to his IN;
+  led5 OutSimple loc:N12 std:!std!;
+  wire my IN[5] to his IN;
+  led6 OutSimple loc:P12 std:!std!;
+  wire my IN[6] to his IN;
+  led7 OutSimple loc:P11 std:!std!;
+  wire my IN[7] to his IN;
+}
+/*====================================================================================
+ 7seg display.
+ To light up a segment, ground it.  Also ground the anode of the digit.
+   a
+ f   b
+   g
+ e   c
+   d    dp
+====================================================================================*/
+OutSevenSegment(std:LVTTL) input:(CLK,SEGA,SEGB,SEGC,SEGD,SEGE,SEGF,SEGG,SEGDP){
+ segA OutSimple loc:E14 std:!std!;    wire my SEGA to his IN;
+ segB OutSimple loc:G13 std:!std!;    wire my SEGB to his IN;
+ segC OutSimple loc:N15 std:!std!;    wire my SEGC to his IN;
+ segD OutSimple loc:P15 std:!std!;    wire my SEGD to his IN;
+ segE OutSimple loc:R16 std:!std!;    wire my SEGE to his IN;
+ segF OutSimple loc:F13 std:!std!;    wire my SEGF to his IN;
+ segG OutSimple loc:N16 std:!std!;    wire my SEGG to his IN;
+ segDP OutSimple loc:P16 std:!std!;    wire my SEGDP to his IN;
+
+ an0 OutFlopped loc:D14  INIT:0 std:!std!;   // Light an0 first 
+ an1 OutFlopped loc:G14  INIT:1 std:!std!;  
+ an2 OutFlopped loc:F14  INIT:1 std:!std!;  
+ an3 OutFlopped loc:E13  INIT:1 std:!std!;  
+ // Distribute clocks to anode IOBs
+ wire my CLK to an0's CLK, to an1's CLK, to an2's CLK, to an3's CLK;
+ // Anode shift register
+ // Now tie the output of each flop to input of the next forming a shift reg.
+ wire an0's OUT to an1's IN;
+ wire an1's OUT to an2's IN;
+ wire an2's OUT to an3's IN;
+ wire an3's OUT to an0's IN;
+ }
+ /*====================================================================================
+  The segdecoders are just luts...
+ */
+//====================================================================================
+// Dual 7-seg decoder.  Output lights a segment (low)
+//====================================================================================
+SegDecoder2(loc,init1,init2) input:(IN0,IN1,IN2,IN3) output:(OUT1,OUT2){
+  // 2 luts, G and F
+  luts GFlut4 loc:xy(0,0) dataG:!init1! dataF:!init2! ;
+  wire my IN0 to luts G1,luts F1;
+  wire my IN1 to luts G2, luts F2;
+  wire my IN2 to luts G3, luts F3;
+  wire my IN3 to luts G4, luts F4;
+  wire luts Y to my OUT1;  
+  wire luts X to my OUT2;  
+}
+//====================================================================================
+// Single 7-seg decoder in G.  Output lights a segment
+SegDecoder1(loc,init) input:(IN0,IN1,IN2,IN3) output:(OUT){
+  lut Glut4 loc:xy(0,0) init:!init!  ;
+  wire my IN0 to lut G1;
+  wire my IN1 to lut G2;
+  wire my IN2 to lut G3;
+  wire my IN3 to lut G4;
+  wire lut Y to my OUT;  
+}
+
+/*====================================================================================
+ SevenSegment 4-bit
+ 
+ Decoded 7-segment display.  4-bit input goes to all digits, sequentially.  Mux
+ the input starting with low digit.
+//    hex FEDC BA98 7654 3210     this segment lights on:
+// A 2812 0010 1000 0001 0010  A  0,2,3,5,6,7,8,9,A,C,E,F
+// B D860 1101 1000 0110 0000  B  0,1,2,3,4,7,8,9,A,D
+// D 8492 1000 0100 1001 0010  D  0,2,3,5,6,8,0,B,C,D,E
+// G 1083 0001 0000 1000 0011  G  2,3,4,5,6,8,9,A,B,D,E.F
+
+ ====================================================================================*/
+SevenSegment() input:(CLK,IN[4]) {
+// This module must be placed at xy(0,0).
+// As it turns out, the best layout is:
+  segAF SegDecoder2 loc:xy(39,38) init1:0x2812 init2:0x208E ;
+  segB  SegDecoder1 loc:xy(39,32) init: 0xD860 ;
+  segCG SegDecoder2 loc:xy(39,4)  init1:0xD004 init2:0x1083;
+  segDE SegDecoder2 loc:xy(39,0)  init1:0x8492 init2:0x02BA;
+
+  wire my IN[0] to segAF IN0, segB IN0, segCG IN0, segDE IN0;
+  wire my IN[1] to segAF IN1, segB IN1, segCG IN1, segDE IN1;
+  wire my IN[2] to segAF IN2, segB IN2, segCG IN2, segDE IN2;
+  wire my IN[3] to segAF IN3, segB IN3, segCG IN3, segDE IN3;
+  
+  
+  s7 OutSevenSegment; // 7-seg led output and anode shift register
+  wire my CLK to his CLK;
+
+  wire segAF's OUT1 to s7's SEGA;
+  wire segAF's OUT2 to s7's SEGF;
+  wire segB's   OUT to s7's SEGB;
+  wire segCG's OUT1 to s7's SEGC;
+  wire segCG's OUT2 to s7's SEGG;
+  wire segDE's OUT1 to s7's SEGD;
+  wire segDE's OUT2 to s7's SEGE;
+  wire my       VCC to s7's SEGDP;
+}
+
+/* Debugging connector
+ Outputs 4 bits at a time, 16 bit total, 4-bit bundle per clock.
+*/
+BugOut(std:LVTTL) input:(IN[4]) output:(SEL[2]) {
+  bug0 OutSimple loc:K15 std:!std!;
+  bug1 OutSimple loc:J16 std:!std!;
+  bug2 OutSimple loc:H15 std:!std!;
+  bug3 OutSimple loc:G15 std:!std!;
+  sel0 InSimple loc:E16 std:!std!;
+  sel1 InSimple loc:D16 std:!std!;
+  
+  wire my IN[0] to bug0's IN;
+  wire my IN[1] to bug1's IN;
+  wire my IN[2] to bug2's IN;
+  wire my IN[3] to bug3's IN;
+
+  wire sel0's OUT to my  SEL[0];
+  wire sel1's OUT to my  SEL[1];
+}
+/*====================================================================================
+BugOut16 - a 16-bit debugging connector
+  uses BugOut
+ ====================================================================================*/
+BugOut16(loc) input:(IN[16]) {
+  m0 Mux4 loc:xy(0,0);
+  m1 Mux4 loc:xy(0,1);
+  m2 Mux4 loc:xy(0,2);
+  m3 Mux4 loc:xy(0,3);
+  bug BugOut;
+  // muxes output 4 bits via bug
+  wire m0's OUT to bug's IN[0];
+  wire m1's OUT to bug's IN[1];
+  wire m2's OUT to bug's IN[2];
+  wire m3's OUT to bug's IN[3];
+  // muxes are controlled by bug's SEL
+  wire bug's SEL[0:1] to m0's SEL[0:1],m1's SEL[0:1],m2's SEL[0:1],m3's SEL[0:1]; 
+
+  wire my IN[0] to m0's IN[0];
+  wire my IN[1] to m1's IN[0];
+  wire my IN[2] to m2's IN[0];
+  wire my IN[3] to m3's IN[0];
+  
+  wire my IN[4] to m0's IN[1];
+  wire my IN[5] to m1's IN[1];
+  wire my IN[6] to m2's IN[1];
+  wire my IN[7] to m3's IN[1];
+  
+  wire my IN[8]  to m0's IN[2];
+  wire my IN[9]  to m1's IN[2];
+  wire my IN[10] to m2's IN[2];
+  wire my IN[11] to m3's IN[2];
+
+  wire my IN[12] to m0's IN[3];
+  wire my IN[13] to m1's IN[3];
+  wire my IN[14] to m2's IN[3];
+  wire my IN[15] to m3's IN[3];
+}

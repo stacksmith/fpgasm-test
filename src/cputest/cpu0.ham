@@ -1,10 +1,9 @@
-// FPGA Hammer test
-#include "Spartan3/board/DigilentSpartan3.ham"
 /*====================================================================================
-  cpu1
+  cpu0
   
-  A 10-bit pc with output to leds... SW7 controls SEQ; sw 0-6 are vector.
+  Starting out.  pc
 ====================================================================================*/
+#include "DigilentSpartan3.ham"
 /*====================================================================================
   pc
   
@@ -42,7 +41,7 @@ Pc2(loc) input:(CLK,SEQ,VEC[2],CIN) output:(PC[2],COUT){
     CY0F:0 CYSELF:F DXMUX:1 FXMUX:FXOR FFX:#FF FFX_INIT_ATTR:INIT0 F:#LUT:D=(~A3*A2)+(A3*A1)  
   };  
   wire my CLK to sl's CLK;
-  wire my CIN to sl's CIN;
+  wire my vcc to sl's CIN;
   wire sl's COUT to my COUT;
   // lower part, known as F and X is low bit.  Upper half, G and Y is high bit 
   wire my VEC[0] to his F1;
@@ -103,19 +102,22 @@ top() {
   clk CLK_1Hz;
   //-------------------------------
   // PC  
-  pc Pc10 loc:xy(3,2);  //OUT[0] will connect to ram's A3... Moving pc a bit up.
+  pc Pc2 loc:xy(3,2);  //OUT[0] will connect to ram's A3... Moving pc a bit up.
   wire clk's CLK to pc's CLK;
 //  wire my vcc to pc's CIN;
   //-------------------------------
   // Leds 
-  led Leds;
-  sw  Switches;
-  wire sw's OUT[0:6] to pc's VEC[0:6];
-  wire sw's OUT[7] to pc's SEQ;         //jump control
-  wire my gnd to pc's VEC[7], pc's VEC[8], pc's VEC[9];
-  // leds
-  wire pc's PC[0:7] to led's IN[0:7];
-  wire my vcc to pc's DOCNT;
+  led0 Led0;
+  led1 Led1;
+  sw0 Switch0;
+  sw1 Switch1;
+  sw2 Switch2;
+  wire sw0's OUT to pc's VEC[0];
+  wire sw1's OUT to pc's VEC[1];
+  wire sw2's OUT to pc's SEQ;
+  wire pc's PC[0] to led0's IN;
+  wire pc's PC[1] to led1's IN;
+  wire my vcc to pc's CIN;
   //-------------------------------
   // RAM 
 /*  ram Ramb16_S18 loc:RAMB16_X0Y0 fromfile:testram.txt ;

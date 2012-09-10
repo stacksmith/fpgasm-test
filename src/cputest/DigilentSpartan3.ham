@@ -2,8 +2,8 @@
 // Digilent Spartan3 Starter Kit board 
 //
 //====================================================================================
-#include "Spartan3/xc3s200ft256.xdlrc"
-#include "Spartan3/Spartan3.ham"
+#include "xc3s200ft256.xdlrc"
+#include "Spartan3.ham"
 //====================================================================================
 // Slow (1Hz) clock for testing, coming from my testbench.
 //====================================================================================
