@@ -16,11 +16,8 @@ srl16: 	src/srl16.v
 	make
 
 
-top.ngc:src/top.v src/top.ucf top.prj \
-	src/rotaryEncoder.v \
-#ipcore_dir/chipscope_icon.v ipcore_dir/chipscope_vio.v
-#	src/debouncer.vhdl
-	xst -ifn top.xst 
+top.ngc:src/top.v src/top.ucf top.prj 
+	xst -intstyle silent -ifn top.xst 
 
 top.ngd: top.ngc
 	ngdbuild -intstyle silent -dd _ngo -nt timestamp -uc src/top.ucf  -p xc3s200-ft256-4 top.ngc top.ngd
