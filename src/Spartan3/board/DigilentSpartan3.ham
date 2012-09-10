@@ -2,8 +2,8 @@
 // Digilent Spartan3 Starter Kit board 
 //
 //====================================================================================
-#include "xc3s200ft256.xdlrc"
-#include "Spartan3.ham"
+#include "Spartan3/xc3s200ft256.xdlrc"
+#include "Spartan3/Spartan3.ham"
 //====================================================================================
 // Slow (1Hz) clock for testing, coming from my testbench.
 //====================================================================================
@@ -236,20 +236,57 @@ SevenSegment() input:(CLK,IN[4]) {
 /* Debugging connector
  Outputs 4 bits at a time, 16 bit total, 4-bit bundle per clock.
 */
-BugOut(std:LVTTL) input:(IN[4],SEL[2]) {
+BugOut(std:LVTTL) input:(IN[4]) output:(SEL[2]) {
   bug0 OutSimple loc:K15 std:!std!;
   bug1 OutSimple loc:J16 std:!std!;
   bug2 OutSimple loc:H15 std:!std!;
   bug3 OutSimple loc:G15 std:!std!;
-  sel0 OutSimple loc:E16 std:!std!;
-  sel1 OutSimple loc:D16 std:!std!;
+  sel0 InSimple loc:E16 std:!std!;
+  sel1 InSimple loc:D16 std:!std!;
   
   wire my IN[0] to bug0's IN;
   wire my IN[1] to bug1's IN;
   wire my IN[2] to bug2's IN;
   wire my IN[3] to bug3's IN;
 
-  wire my SEL[0] to sel0's IN;
-  wire my SEL[1] to sel1's IN;
+  wire sel0's OUT to my  SEL[0];
+  wire sel1's OUT to my  SEL[1];
 }
- 
+/*====================================================================================
+BugOut16 - a 16-bit debugging connector
+  uses BugOut
+ ====================================================================================*/
+BugOut16(loc) input:(IN[16]) {
+  m0 Mux4 loc:xy(0,0);
+  m1 Mux4 loc:xy(0,1);
+  m2 Mux4 loc:xy(0,2);
+  m3 Mux4 loc:xy(0,3);
+  bug BugOut;
+  // muxes output 4 bits via bug
+  wire m0's OUT to bug's IN[0];
+  wire m1's OUT to bug's IN[1];
+  wire m2's OUT to bug's IN[2];
+  wire m3's OUT to bug's IN[3];
+  // muxes are controlled by bug's SEL
+  wire bug's SEL[0:1] to m0's SEL[0:1],m1's SEL[0:1],m2's SEL[0:1],m3's SEL[0:1]; 
+
+  wire my IN[0] to m0's IN[0];
+  wire my IN[1] to m1's IN[0];
+  wire my IN[2] to m2's IN[0];
+  wire my IN[3] to m3's IN[0];
+  
+  wire my IN[4] to m0's IN[1];
+  wire my IN[5] to m1's IN[1];
+  wire my IN[6] to m2's IN[1];
+  wire my IN[7] to m3's IN[1];
+  
+  wire my IN[8]  to m0's IN[2];
+  wire my IN[9]  to m1's IN[2];
+  wire my IN[10] to m2's IN[2];
+  wire my IN[11] to m3's IN[2];
+
+  wire my IN[12] to m0's IN[3];
+  wire my IN[13] to m1's IN[3];
+  wire my IN[14] to m2's IN[3];
+  wire my IN[15] to m3's IN[3];
+}

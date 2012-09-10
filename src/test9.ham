@@ -6,7 +6,7 @@
 
   7-segment test.  All four digits light up from a nybble (low switches)
 ====================================================================================*/
-#include "DigilentSpartan3.ham"
+#include "Spartan3/board/DigilentSpartan3.ham"
 //====================================================================================
 // seven-segment output 
 // All 4 digits from low 4 switches

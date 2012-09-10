@@ -5,9 +5,7 @@
 
 
 default: test.bit
-# assemble
-test.xdl: test.ham
-	./fpgasm test.ham test.xdl
+
 
 test.ncd: test.xdl
 	xdl >xdl.log -xdl2ncd test

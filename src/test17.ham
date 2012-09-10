@@ -1,5 +1,5 @@
 // FPGA Hammer test
-#include "DigilentSpartan3.ham"
+#include "Spartan3/board/DigilentSpartan3.ham"
 /*====================================================================================
   Test16
   Driving an 18 ram from  a 10-bit pc. 

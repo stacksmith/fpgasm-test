@@ -1,4 +1,4 @@
-include "DigilentSpartan3.ham"
+#include "Spartan3/board/DigilentSpartan3.ham"
 //====================================================================================
 // Test12
 // ctr4 - an optimally setup 4-bit counter...

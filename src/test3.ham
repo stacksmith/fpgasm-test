@@ -6,7 +6,7 @@
 
   So here is an SRL16, a shift register.  An led shows its output
 ====================================================================================*/
-#include "DigilentSpartan3.ham"
+#include "Spartan3/board/DigilentSpartan3.ham"
 //====================================================================================
 // Goal: use an SRL to pulse every 4 clocks or so
 //====================================================================================

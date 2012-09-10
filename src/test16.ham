@@ -1,5 +1,5 @@
 // FPGA Hammer test
-#include "DigilentSpartan3.ham"
+#include "Spartan3/board/DigilentSpartan3.ham"
 /*====================================================================================
   Test15
   Driving a ram from  a 12-bit pc.  Clean layout.  FPGA editor's router is actually

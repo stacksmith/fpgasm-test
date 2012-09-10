@@ -1,4 +1,4 @@
- /*====================================================================================
+/*====================================================================================
   File:       testrig0
   Board:      Digilent Spartan 3 demo board
   Designer:   Victor Yurkovsky  
@@ -9,7 +9,7 @@
     of a 4-bit nybble and 2-bit digit select.
   
 ====================================================================================*/
-#include "DigilentSpartan3.ham"
+#include "Spartan3/board/DigilentSpartan3.ham"
 
 top() {
   clk CLK_1Hz;
@@ -22,19 +22,16 @@ top() {
   m2 Mux4 loc:xy(10,12);
   m3 Mux4 loc:xy(10,13);
   
+  // Bugout has 4 ins and 2 sels...
   bug BugOut;
-  
+  // muxes output 4 bits via bug
   wire m0's OUT to bug's IN[0];
   wire m1's OUT to bug's IN[1];
   wire m2's OUT to bug's IN[2];
   wire m3's OUT to bug's IN[3];
-
-  counter Ctr2 loc:xy(9,10);
-  wire clk's CLK to counter's CLK;
-  wire my vcc to counter's CIN;
-  wire counter's OUT[0:1]
-//wire but OUT[0:1] 
-    to bug's SEL[0:1],m0's SEL[0:1],m1's SEL[0:1],m2's SEL[0:1],m3's SEL[0:1];
+  // muxes are controlled by bug's SEL
+  wire bug's SEL[0:1] to m0's SEL[0:1],m1's SEL[0:1],m2's SEL[0:1],m3's SEL[0:1]; 
+  //16 bits into the muxes  
   
   wire sw OUT[0] to m0's IN[0];
   wire sw OUT[1] to m1's IN[0];

@@ -1,5 +1,4 @@
-
-#include "DigilentSpartan3.ham"
+#include "Spartan3/board/DigilentSpartan3.ham"
 //====================================================================================
 // Test10.  Connect 8 sitches to 8 LEDs, accordingly.
 //====================================================================================

@@ -1,5 +1,5 @@
 // FPGA Hammer test
-#include "DigilentSpartan3.ham"
+#include "Spartan3/board/DigilentSpartan3.ham"
 /*====================================================================================
   cpu1
   

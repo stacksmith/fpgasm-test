@@ -6,7 +6,7 @@
 
  // 8-bit counter (now in Spartan3) to 8 leds.
 ===================================================================================*/
-#include "DigilentSpartan3.ham"
+#include "Spartan3/board/DigilentSpartan3.ham"
 
 
 top() {
