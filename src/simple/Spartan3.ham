@@ -206,6 +206,119 @@ Ramb16_S18(loc,fromfile) input:(CLK,A[10],DI[18],WE,EN,SSR) output:(DO[18]){
 
 }
 
+/*==================================================================================
+ Dual-ported RAM.
+ PORTA is 9 bits, posedge clock.
+ PORTB is 18 bits, negedge clock.
+ 
+ WE is active low, as it's cheaper to tie it to vcc for ROMs.
+ EN is active high, as it's cheaper to tie it to vcc for permanent on.
+ SSR is active low, as it's cheaper to tie it to vcc for normal operation.
+====================================================================================*/
+Ramb16_S9_S18(loc,fromfile) input:(CLK,ADDRA[11],DIA[9],WEA,ENA,SSRA,
+                                   ADDRB[10],DIB[18],WEB,ENB,SSRB)
+  output:(DOA[9],DOB[18]){
+  ram RAMB16
+  cfg:{CLKAINV:CLKA   ENAINV:ENA PORTA_ATTR:2048X9 SSRAINV:SSRA_B WEAINV:WEA_B WRITEMODEA:WRITE_FIRST }
+  cfg:{CLKBINV:CLKB_B ENBINV:ENB PORTB_ATTR:1024X18 SSRBINV:SSRB_B WEBINV:WEB_B WRITEMODEB:WRITE_FIRST }
+  cfg:{RAMB16A:}
+  cfgfile:!fromfile! 
+  ;
+    
+  //clk and control
+  wire my CLK to ram's CLKA, ram's CLKB;
+  wire my WEA to ram's WEA;
+  wire my ENA to ram's ENA;
+  wire my SSRA to ram's SSRA;
+  //address bus
+  wire my ADDRA[0]  to ram's ADDRA3;
+  wire my ADDRA[1]  to ram's ADDRA4;
+  wire my ADDRA[2]  to ram's ADDRA5;
+  wire my ADDRA[3]  to ram's ADDRA6;
+  wire my ADDRA[4]  to ram's ADDRA7;
+  wire my ADDRA[5]  to ram's ADDRA8;
+  wire my ADDRA[6]  to ram's ADDRA9;
+  wire my ADDRA[7]  to ram's ADDRA10;
+  wire my ADDRA[8]  to ram's ADDRA11;
+  wire my ADDRA[9]  to ram's ADDRA12;
+  wire my ADDRA[10] to ram's ADDRA13;
+  //din
+  wire my DIA[0] to ram's DIA0;
+  wire my DIA[1] to ram's DIA1;
+  wire my DIA[2] to ram's DIA2;
+  wire my DIA[3] to ram's DIA3;
+  wire my DIA[4] to ram's DIA4;
+  wire my DIA[5] to ram's DIA5;
+  wire my DIA[6] to ram's DIA6;
+  wire my DIA[7] to ram's DIA7;
+  wire my DIA[8] to ram's DIPA0;
+  //dout
+  wire ram's DOA0 to my  DOA[0]; 
+  wire ram's DOA1 to my  DOA[1]; 
+  wire ram's DOA2 to my  DOA[2]; 
+  wire ram's DOA3 to my  DOA[3]; 
+  wire ram's DOA4 to my  DOA[4]; 
+  wire ram's DOA5 to my  DOA[5]; 
+  wire ram's DOA6 to my  DOA[6]; 
+  wire ram's DOA7 to my  DOA[7]; 
+  wire ram's DOPA0 to my DOA[8]; 
+  // port B
+  wire my WEB to ram's WEB;
+  wire my ENB to ram's ENB;
+  wire my SSRB to ram's SSRB;
+   //address bus
+  wire my ADDRB[0]  to ram's ADDRB4;
+  wire my ADDRB[1]  to ram's ADDRB5;
+  wire my ADDRB[2]  to ram's ADDRB6;
+  wire my ADDRB[3]  to ram's ADDRB7;
+  wire my ADDRB[4]  to ram's ADDRB8;
+  wire my ADDRB[5]  to ram's ADDRB9;
+  wire my ADDRB[6]  to ram's ADDRB10;
+  wire my ADDRB[7]  to ram's ADDRB11;
+  wire my ADDRB[8]  to ram's ADDRB12;
+  wire my ADDRB[9]  to ram's ADDRB13;
+  //din
+  wire my  DIB[0] to ram's DIB0;
+  wire my  DIB[1] to ram's DIB1;
+  wire my  DIB[2] to ram's DIB2;
+  wire my  DIB[3] to ram's DIB3;
+  wire my  DIB[4] to ram's DIB4;
+  wire my  DIB[5] to ram's DIB5;
+  wire my  DIB[6] to ram's DIB6;
+  wire my  DIB[7] to ram's DIB7;
+  wire my  DIB[8] to ram's DIB8;
+  wire my  DIB[9] to ram's DIB9;
+  wire my DIB[10] to ram's DIB10;
+  wire my DIB[11] to ram's DIB11;
+  wire my DIB[12] to ram's DIB12;
+  wire my DIB[13] to ram's DIB13;
+  wire my DIB[14] to ram's DIB14;
+  wire my DIB[15] to ram's DIB15;
+  wire my DIB[16] to ram's DIPB0;
+  wire my DIB[17] to ram's DIPB1;
+  //dout
+  wire ram's DOB0 to my  DOB[0]; 
+  wire ram's DOB1 to my  DOB[1]; 
+  wire ram's DOB2 to my  DOB[2]; 
+  wire ram's DOB3 to my  DOB[3]; 
+  wire ram's DOB4 to my  DOB[4]; 
+  wire ram's DOB5 to my  DOB[5]; 
+  wire ram's DOB6 to my  DOB[6]; 
+  wire ram's DOB7 to my  DOB[7]; 
+  wire ram's DOB8 to my  DOB[8]; 
+  wire ram's DOB9 to my  DOB[9]; 
+  wire ram's DOB10 to my DOB[10]; 
+  wire ram's DOB11 to my DOB[11]; 
+  wire ram's DOB12 to my DOB[12]; 
+  wire ram's DOB13 to my DOB[13]; 
+  wire ram's DOB14 to my DOB[14]; 
+  wire ram's DOB15 to my DOB[15]; 
+  wire ram's DOPB0 to my DOB[16]; 
+  wire ram's DOPB1 to my DOB[17]; 
+   
+  
+  
+  }
 
 // simple logic
 /*===================================================================================
@@ -344,7 +457,7 @@ Ctr12(loc) input:(CLK,CIN) output:(OUT[12],COUT){
 inputs:
 outputs:
 ====================================================================================*/
-Mux4(loc) input:(IN[4],SEL[2]) output:(OUT){
+Mux4(loc) input(IN[4],SEL[2]) output(OUT){
   sl SLICEL loc:xy(0,0) cfg:{ 
     BXINV:BX_B F5USED:0 /*invert BX; 0 will select F*/
     F:#LUT:D=(~A3*A1)+(A3*A2)

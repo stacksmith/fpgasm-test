@@ -1,26 +1,41 @@
 /*====================================================================================
   cpu5
   
-  A Tugman-style CPU.  There are 2 internal buses to the ALU, A and B.
-    The instructions are MISC 18 bits:
-  Top 10 bits= Const or Jump target
-  low 8 bits= instruction:
-  BB - 2 bits selecting from
-      00 const
-      01 NOS
-      10 input
-      11 mem
-  OP - 2 bits, family dependent
-  A  - 1 bit
-      0  const
-      1  TOS
-  FAM - 3 bits
-      000 Logic
-      001 Arithmetic
-      010 Shift
-      011 Misc
-      111 Jump
 
+  It's possible to use the dual-ported BRAM like this:
+  9-bit instruction port
+  18-bit data port
+  The instructions are mapped as follows:
+  0-(512-32) - indirect instruction.  Data port at this offset contains the
+   information needed to perform the instruction
+  top 32 instructions - CPU instruction.
+  
+  For indirect instructions, the 18-bit data is encoded as follows:
+  XX <16-bit address/value>.
+  00 <ADDRESS>  CALL <ADDRESS>
+  01 <DATA>     LOAD <DATA>
+  10 <ADDRESS>  JUMP <ADDRESS> 
+  11 <ADDRESS>  JUMP <ADDRESS> if TOS=TRUE, drop.
+  
+  The stack is an array of lutrams, TOS is in the flip-flop.
+  
+  
+  The instructions are:
+  ADD
+  ADDC
+  SUB
+  SUBC
+  
+  AND
+  OR
+  XOR
+  TOS
+  
+  dup
+  drop
+  
+  
+  To implement this, 
 -------------------------------------------------------------------------------------
 Cpu5 - not implemented - same as cpu4...
 ====================================================================================*/

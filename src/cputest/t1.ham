@@ -1,0 +1,17 @@
+/*====================================================================================
+  t1
+  
+  Designer:   Victor Yurkovsky  
+  Date:       September 11 2012
+  
+  a minimal circuit for scalar-to-bus fanout test
+====================================================================================*/
+#include "DigilentSpartan3.ham"
+top() {
+  sw Switches;
+  led Leds;
+  wire sw's OUT[0] to led's IN[0];
+  wire sw's OUT[1] to led's IN[1];
+  wire my gnd to led's IN[2:7 ];
+  }
+ 
