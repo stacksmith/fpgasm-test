@@ -1,0 +1,481 @@
+/*==================================================================================
+ 
+ Spartan 3 low-level circuits
+====================================================================================*/
+OutSimple(loc,std:LVTTL) input:(IN) {
+    iobOut IOB loc:!loc! cfg:{O1INV:O1 DRIVEATTRBOX:8 IOATTRBOX:!std! SLEW:SLOW  OMUX:O1} ;
+    wire my IN to iobOut's O1;
+}
+/*===================================================================================
+ OutFlopped - an output port after the IOB flip-flop.
+====================================================================================*/
+OutFlopped (loc,INIT,std:LVTTL) input:( CLK ,IN) output:(OUT) {
+    iobOut IOB loc:!loc! cfg:{O1INV:O1 DRIVEATTRBOX:24 IOATTRBOX:!std! SLEW:SLOW OMUX:OFF1 OFF1:#FF
+      OTCLK1INV:OTCLK1 OFF1_INIT_ATTR:INIT!INIT!  IDELMUX:1 IMUX:1} ;
+  wire my IN to iobOut O1;
+  wire my CLK to iobOut OTCLK1;
+  wire iobOut I to my OUT;
+}
+/*===================================================================================
+ InSimple
+====================================================================================*/
+InSimple (loc,std:LVTTL) output:(OUT)  {
+    iobIn IOB loc:!loc! cfg:{IDELMUX:1 IOATTRBOX:!std! IMUX:1}  ;
+    wire iobIn's I to my OUT  ;
+}
+/*===================================================================================
+ BUFG  
+ This is really a BUGMUX. Select is inverted and vcc'd to force input0 always.
+===================================================================================*/
+Bufg(loc) input:(IN) output:(OUT){
+  it BUFGMUX loc:!loc! cfg:{DISABLE_ATTR:LOW I0_USED:0 I1_USED:#OFF SINV:S_B };
+  wire my vcc to his S;
+  wire my IN to his I0;
+  wire his O to my OUT;
+}
+//===================================================================================
+// A simple lut4 in the G (top) position within a slice.
+Glut4(loc,init) input:(G[4]) output:(Y){
+  slice SLICEL cfg:{G:#LUT:D=!init! GYMUX:G YUSED:0 };
+  wire my G[0] to his G1;
+  wire my G[1] to his G2;
+  wire my G[2] to his G3;
+  wire my G[3] to his G4;
+  wire his Y to my Y;
+}
+//===================================================================================
+// A simple lut4 in the F (bottom) position within a slice.
+Flut4(loc,init) input:(F[4]) output:(X){ 
+  slice SLICEL cfg:{F:#LUT:D=!init! FXMUX:F XUSED:0 };
+  wire my F[0] to his F1;
+  wire my F[1] to his F2;
+  wire my F[2] to his F3;
+  wire my F[3] to his F4;
+  wire his X to my X;
+}
+//===================================================================================
+// And both
+GFlut4(loc,dataG,dataF) input:(G1,G2,G3,G4,F1,F2,F3,F4) output:(Y,X){
+  slice SLICEL cfg:{G:#LUT:D=!dataG! GYMUX:G YUSED:0 F:#LUT:D=!dataF! FXMUX:F XUSED:0 };
+  wire my G1 to his G1;
+  wire my G2 to his G2;
+  wire my G3 to his G3;
+  wire my G4 to his G4;
+  wire his Y to my Y;
+  wire my F1 to his F1;
+  wire my F2 to his F2;
+  wire my F3 to his F3;
+  wire my F4 to his F4;
+  wire his X to my X;
+}
+//===================================================================================
+// A simple SRL in the G (top) position within a slice.
+//BYINV:BY CLKINV:CLK DIG_MUX:BY G:#RAM:D=0x0001 GYMUX:G G_ATTR:SHIFT_REG SRINV:SR YUSED:0
+Gsrl(loc,data) input:(CLK,IN,TAP0,TAP1,TAP2,TAP3) output:(OUT){ 
+  slice SLICEM cfg:{G:#RAM:D=!data! BYINV:BY CLKINV:CLK DIG_MUX:BY
+   GYMUX:G G_ATTR:SHIFT_REG SRINV:SR YUSED:0};
+  wire my CLK to his CLK;
+  wire my IN to his BY; //input via BY->DIG_MUX->DI 
+  wire my vcc to his SR; //SR input used to enable WSGEN
+  wire my TAP0 to his G1;
+  wire my TAP1 to his G2;
+  wire my TAP2 to his G3;
+  wire my TAP3 to his G4;
+  wire his Y to my OUT;
+}
+/*==================================================================================
+ a 9-bit RAM.
+ WE is active low, as it's cheaper to tie it to vcc for ROMs.
+ EN is active high, as it's cheaper to tie it to vcc for permanent on.
+ SSR is active low, as it's cheaper to tie it to vcc for normal operation.
+====================================================================================*/
+Ramb16_S9(loc,fromfile) input:(CLK,A[11],DI[9],WE,EN,SSR) output:(DO[9]){
+  ram RAMB16
+  cfg:{CLKAINV:CLKA ENAINV:ENA PORTA_ATTR:2048X9 SSRAINV:SSRA_B WEAINV:WEA_B WRITEMODEA:WRITE_FIRST }
+  cfg:{PORTB_ATTR:#OFF }
+  cfg:{SSRBINV:#OFF WEBINV:#OFF WRITEMODEB:#OFF RAMB16: RAMB16A:}
+  cfg:{INIT_A:000 SRVAL_A:000}   
+  cfgfile:!fromfile! 
+  ;
+    
+  //clk and control
+  wire my CLK to ram's CLKA;
+  wire my WE to ram's WEA;
+  wire my EN to ram's ENA;
+  wire my SSR to ram's SSRA;
+  //address bus
+  wire my A[0]  to ram's ADDRA3;
+  wire my A[1]  to ram's ADDRA4;
+  wire my A[2]  to ram's ADDRA5;
+  wire my A[3]  to ram's ADDRA6;
+  wire my A[4]  to ram's ADDRA7;
+  wire my A[5]  to ram's ADDRA8;
+  wire my A[6]  to ram's ADDRA9;
+  wire my A[7]  to ram's ADDRA10;
+  wire my A[8]  to ram's ADDRA11;
+  wire my A[9]  to ram's ADDRA12;
+  wire my A[10] to ram's ADDRA13;
+  //din
+  wire my DI[0] to ram's DIA0;
+  wire my DI[1] to ram's DIA1;
+  wire my DI[2] to ram's DIA2;
+  wire my DI[3] to ram's DIA3;
+  wire my DI[4] to ram's DIA4;
+  wire my DI[5] to ram's DIA5;
+  wire my DI[6] to ram's DIA6;
+  wire my DI[7] to ram's DIA7;
+  wire my DI[8] to ram's DIPA0;
+  //dout
+  wire ram's DOA0 to my  DO[0]; 
+  wire ram's DOA1 to my  DO[1]; 
+  wire ram's DOA2 to my  DO[2]; 
+  wire ram's DOA3 to my  DO[3]; 
+  wire ram's DOA4 to my  DO[4]; 
+  wire ram's DOA5 to my  DO[5]; 
+  wire ram's DOA6 to my  DO[6]; 
+  wire ram's DOA7 to my  DO[7]; 
+  wire ram's DOPA0 to my DO[8]; 
+}
+/*==================================================================================
+ an 18-bit ROM.
+ WE is active low, as it's cheaper to tie it to vcc for ROMs.
+ EN is active high, as it's cheaper to tie it to vcc for permanent on.
+ SSR is active low, as it's cheaper to tie it to vcc for normal operation.
+====================================================================================*/
+Ramb16_S18(loc,fromfile) input:(CLK,A[10],DI[18],WE,EN,SSR) output:(DO[18]){
+  ram RAMB16
+  cfg:{CLKAINV:CLKA ENAINV:ENA PORTA_ATTR:1024X18 SSRAINV:SSRA_B WEAINV:WEA_B WRITEMODEA:WRITE_FIRST }
+  cfg:{PORTB_ATTR:#OFF }
+  cfg:{SSRBINV:#OFF WEBINV:#OFF WRITEMODEB:#OFF RAMB16: RAMB16A: }
+  cfg:{INIT_A:00000 SRVAL_A:00000}   
+  cfgfile:!fromfile! 
+  ;
+    
+  //clk and control
+  wire my CLK to ram's CLKA;
+  wire my WE to ram's WEA;
+  wire my EN to ram's ENA;
+  wire my SSR to ram's SSRA;
+  //address bus
+  wire my A[0]  to ram's ADDRA4;
+  wire my A[1]  to ram's ADDRA5;
+  wire my A[2]  to ram's ADDRA6;
+  wire my A[3]  to ram's ADDRA7;
+  wire my A[4]  to ram's ADDRA8;
+  wire my A[5]  to ram's ADDRA9;
+  wire my A[6]  to ram's ADDRA10;
+  wire my A[7]  to ram's ADDRA11;
+  wire my A[8]  to ram's ADDRA12;
+  wire my A[9]  to ram's ADDRA13;
+  //din
+  wire my  DI[0] to ram's DIA0;
+  wire my  DI[1] to ram's DIA1;
+  wire my  DI[2] to ram's DIA2;
+  wire my  DI[3] to ram's DIA3;
+  wire my  DI[4] to ram's DIA4;
+  wire my  DI[5] to ram's DIA5;
+  wire my  DI[6] to ram's DIA6;
+  wire my  DI[7] to ram's DIA7;
+  wire my  DI[8] to ram's DIA8;
+  wire my  DI[9] to ram's DIA9;
+  wire my DI[10] to ram's DIA10;
+  wire my DI[11] to ram's DIA11;
+  wire my DI[12] to ram's DIA12;
+  wire my DI[13] to ram's DIA13;
+  wire my DI[14] to ram's DIA14;
+  wire my DI[15] to ram's DIA15;
+  wire my DI[16] to ram's DIPA0;
+  wire my DI[17] to ram's DIPA1;
+  //dout
+  wire ram's DOA0 to my  DO[0]; 
+  wire ram's DOA1 to my  DO[1]; 
+  wire ram's DOA2 to my  DO[2]; 
+  wire ram's DOA3 to my  DO[3]; 
+  wire ram's DOA4 to my  DO[4]; 
+  wire ram's DOA5 to my  DO[5]; 
+  wire ram's DOA6 to my  DO[6]; 
+  wire ram's DOA7 to my  DO[7]; 
+  wire ram's DOA8 to my  DO[8]; 
+  wire ram's DOA9 to my  DO[9]; 
+  wire ram's DOA10 to my DO[10]; 
+  wire ram's DOA11 to my DO[11]; 
+  wire ram's DOA12 to my DO[12]; 
+  wire ram's DOA13 to my DO[13]; 
+  wire ram's DOA14 to my DO[14]; 
+  wire ram's DOA15 to my DO[15]; 
+  wire ram's DOPA0 to my DO[16]; 
+  wire ram's DOPA1 to my DO[17]; 
+
+}
+
+/*==================================================================================
+ Dual-ported RAM.
+ PORTA is 9 bits, posedge clock.
+ PORTB is 18 bits, negedge clock.
+ 
+ WE is active low, as it's cheaper to tie it to vcc for ROMs.
+ EN is active high, as it's cheaper to tie it to vcc for permanent on.
+ SSR is active low, as it's cheaper to tie it to vcc for normal operation.
+====================================================================================*/
+Ramb16_S9_S18(loc,fromfile,init_a:0) input:(CLK,ADDRA[11],DIA[9],WEA,ENA,SSRA,
+                                   ADDRB[10],DIB[18],WEB,ENB,SSRB)
+  output:(DOA[9],DOB[18]){
+  ram RAMB16
+  cfg:{CLKAINV:CLKA   ENAINV:ENA PORTA_ATTR:2048X9 SSRAINV:SSRA_B WEAINV:WEA_B WRITEMODEA:WRITE_FIRST }
+  cfg:{CLKBINV:CLKB_B ENBINV:ENB PORTB_ATTR:1024X18 SSRBINV:SSRB_B WEBINV:WEB_B WRITEMODEB:WRITE_FIRST }
+  cfg:{RAMB16A:}
+  cfg:{INIT_A:!init_a! SRVAL_A:000}   
+  cfg:{INIT_B:00000 SRVAL_B:00000}   
+  cfgfile:!fromfile! 
+  ;
+    
+  //clk and control
+  wire my CLK to ram's CLKA, ram's CLKB;
+  wire my WEA to ram's WEA;
+  wire my ENA to ram's ENA;
+  wire my SSRA to ram's SSRA;
+  //address bus
+  wire my ADDRA[0]  to ram's ADDRA3;
+  wire my ADDRA[1]  to ram's ADDRA4;
+  wire my ADDRA[2]  to ram's ADDRA5;
+  wire my ADDRA[3]  to ram's ADDRA6;
+  wire my ADDRA[4]  to ram's ADDRA7;
+  wire my ADDRA[5]  to ram's ADDRA8;
+  wire my ADDRA[6]  to ram's ADDRA9;
+  wire my ADDRA[7]  to ram's ADDRA10;
+  wire my ADDRA[8]  to ram's ADDRA11;
+  wire my ADDRA[9]  to ram's ADDRA12;
+  wire my ADDRA[10] to ram's ADDRA13;
+  //din
+  wire my DIA[0] to ram's DIA0;
+  wire my DIA[1] to ram's DIA1;
+  wire my DIA[2] to ram's DIA2;
+  wire my DIA[3] to ram's DIA3;
+  wire my DIA[4] to ram's DIA4;
+  wire my DIA[5] to ram's DIA5;
+  wire my DIA[6] to ram's DIA6;
+  wire my DIA[7] to ram's DIA7;
+  wire my DIA[8] to ram's DIPA0;
+  //dout
+  wire ram's DOA0 to my  DOA[0]; 
+  wire ram's DOA1 to my  DOA[1]; 
+  wire ram's DOA2 to my  DOA[2]; 
+  wire ram's DOA3 to my  DOA[3]; 
+  wire ram's DOA4 to my  DOA[4]; 
+  wire ram's DOA5 to my  DOA[5]; 
+  wire ram's DOA6 to my  DOA[6]; 
+  wire ram's DOA7 to my  DOA[7]; 
+  wire ram's DOPA0 to my DOA[8]; 
+  // port B
+  wire my WEB to ram's WEB;
+  wire my ENB to ram's ENB;
+  wire my SSRB to ram's SSRB;
+   //address bus
+  wire my ADDRB[0]  to ram's ADDRB4;
+  wire my ADDRB[1]  to ram's ADDRB5;
+  wire my ADDRB[2]  to ram's ADDRB6;
+  wire my ADDRB[3]  to ram's ADDRB7;
+  wire my ADDRB[4]  to ram's ADDRB8;
+  wire my ADDRB[5]  to ram's ADDRB9;
+  wire my ADDRB[6]  to ram's ADDRB10;
+  wire my ADDRB[7]  to ram's ADDRB11;
+  wire my ADDRB[8]  to ram's ADDRB12;
+  wire my ADDRB[9]  to ram's ADDRB13;
+  //din
+  wire my  DIB[0] to ram's DIB0;
+  wire my  DIB[1] to ram's DIB1;
+  wire my  DIB[2] to ram's DIB2;
+  wire my  DIB[3] to ram's DIB3;
+  wire my  DIB[4] to ram's DIB4;
+  wire my  DIB[5] to ram's DIB5;
+  wire my  DIB[6] to ram's DIB6;
+  wire my  DIB[7] to ram's DIB7;
+  wire my  DIB[8] to ram's DIB8;
+  wire my  DIB[9] to ram's DIB9;
+  wire my DIB[10] to ram's DIB10;
+  wire my DIB[11] to ram's DIB11;
+  wire my DIB[12] to ram's DIB12;
+  wire my DIB[13] to ram's DIB13;
+  wire my DIB[14] to ram's DIB14;
+  wire my DIB[15] to ram's DIB15;
+  wire my DIB[16] to ram's DIPB0;
+  wire my DIB[17] to ram's DIPB1;
+  //dout
+  wire ram's DOB0 to my  DOB[0]; 
+  wire ram's DOB1 to my  DOB[1]; 
+  wire ram's DOB2 to my  DOB[2]; 
+  wire ram's DOB3 to my  DOB[3]; 
+  wire ram's DOB4 to my  DOB[4]; 
+  wire ram's DOB5 to my  DOB[5]; 
+  wire ram's DOB6 to my  DOB[6]; 
+  wire ram's DOB7 to my  DOB[7]; 
+  wire ram's DOB8 to my  DOB[8]; 
+  wire ram's DOB9 to my  DOB[9]; 
+  wire ram's DOB10 to my DOB[10]; 
+  wire ram's DOB11 to my DOB[11]; 
+  wire ram's DOB12 to my DOB[12]; 
+  wire ram's DOB13 to my DOB[13]; 
+  wire ram's DOB14 to my DOB[14]; 
+  wire ram's DOB15 to my DOB[15]; 
+  wire ram's DOPB0 to my DOB[16]; 
+  wire ram's DOPB1 to my DOB[17]; 
+   
+  
+  
+  }
+
+// simple logic
+/*===================================================================================
+ Ctr2 
+ A a 2-bit counter in one slice.
+ 
+ We only use F1/G1 and the incrementing is done in the carry chain.  Note that PAR
+ will often use F1/F2 and G1/G2 interchangeably and change your LUT's data accordingly
+ to improve routing...
+
+  Note: If CIN is not in the carry chain, PAR will route it in via BX!
+ 
+ ===================================================================================*/
+Ctr2(loc) input:(CLK,CIN) output:(OUT[2],COUT){
+  sll SLICEL loc:xy(0,0) cfg:{ CLKINV:CLK COUTUSED:0 CYINIT:CIN 
+    CY0G:0 CYSELG:G DYMUX:1 GYMUX:GXOR FFX:#FF FFX_INIT_ATTR:INIT0 G:#LUT:D=A1 
+    CY0F:0 CYSELF:F DXMUX:1 FXMUX:FXOR FFY:#FF FFY_INIT_ATTR:INIT0 F:#LUT:D=A1      
+  };  
+  wire my CLK   to his CLK;
+  wire my CIN   to his CIN;      //carry in path via BX
+  wire his COUT to my  COUT;
+  wire his XQ to his F1, to my OUT[0]; // close counter loop
+  wire his YQ to his G1, my OUT[1]; 
+ 
+}
+/*===================================================================================
+ Ctr4
+    X   
+    X   
+
+  A a 4-bit counter in 2 slices.
+ Using FPGA editor I found that the ultimate arrangement for connectivity on xc3s
+ for input pin is:
+ bottom first - F4 G1 F3 G2
+ ===================================================================================*/
+Ctr4(loc) input:(CLK,CIN) output:(OUT[4],COUT){
+  sll SLICEL loc:xy(0,0) cfg:{ CLKINV:CLK COUTUSED:0 CYINIT:CIN 
+    CY0G:0 CYSELG:G DYMUX:1 GYMUX:GXOR FFX:#FF FFX_INIT_ATTR:INIT0 G:#LUT:D=0xAAAA  
+    CY0F:0 CYSELF:F DXMUX:1 FXMUX:FXOR FFY:#FF FFY_INIT_ATTR:INIT0 F:#LUT:D=0xFF00      
+  };  
+  slh SLICEL loc:xy(0,1) cfg:{ CLKINV:CLK COUTUSED:0 CYINIT:CIN 
+    CY0G:0 CYSELG:G DYMUX:1 GYMUX:GXOR FFX:#FF FFX_INIT_ATTR:INIT0 G:#LUT:D=0xCCCC    
+    CY0F:0 CYSELF:F DXMUX:1 FXMUX:FXOR FFY:#FF FFY_INIT_ATTR:INIT0 F:#LUT:D=0xF0F0     
+  };  
+
+  // Obviously, clk...
+  wire my CLK to  sll's CLK,  slh's CLK;
+  // Wire up the carry chain.
+  wire my CIN to sll's CIN;
+  wire sll's COUT to slh's CIN;
+  wire slh's COUT to my COUT;
+  // loop
+  wire sll's XQ to sll's F4, my OUT[0];
+  wire sll's YQ to sll's G1, my OUT[1];
+  wire slh's XQ to slh's F3, my OUT[2];
+  wire slh's YQ to slh's G2, my OUT[3];
+  // and short out the unused inputs
+  wire my vcc to sll's F1, sll's F2, sll's F3, sll's G2, sll's G3, sll's G4;
+  wire my vcc to slh's F1, slh's F2, slh's F4, slh's G1, slh's G3, slh's G4;
+}
+/*===================================================================================
+ Ctr8         
+    X         
+    X         
+    X         
+    X         
+  A a 8-bit counter in 4 slices, arranged as a vertical line (carry chain used).
+ ===================================================================================*/
+Ctr8(loc) input:(CLK,CIN) output:(OUT[8],COUT){
+  ctra Ctr4 loc:xy(0,0);
+  ctrb Ctr4 loc:xy(0,2);
+  //clocks
+  wire my CLK to ctra's CLK, ctrb's CLK;
+  //carry chains
+  wire my CIN to ctra's CIN;
+  wire ctra's COUT to ctrb's CIN;
+  wire ctrb's COUT to my COUT;
+  //output
+  wire ctra's OUT[0:3] to my OUT[0:3];
+  wire ctrb's OUT[0:3] to my OUT[4:7];
+}
+/*===================================================================================
+ Ctr10         
+    X         
+    X         
+    X         
+  A a 10-bit counter in 3 slices, arranged as a vertical line (carry chain used).
+ ===================================================================================*/
+Ctr10(loc) input:(CLK,CIN) output:(OUT[10],COUT){
+  ctrc Ctr2 loc:xy(0,4);
+  ctrb Ctr4 loc:xy(0,2);
+  ctra Ctr4 loc:xy(0,0);
+  //clocks
+  wire my CLK to ctra's CLK, ctrb's CLK, ctrc's CLK;
+  //carry chains
+  wire my CIN to ctra's CIN;
+  wire ctra's COUT to ctrb's CIN;
+  wire ctrb's COUT to ctrc's CIN;
+  wire ctrc's COUT to my COUT;
+  //output
+  wire ctra's OUT[0:3] to my OUT[0:3];
+  wire ctrb's OUT[0:3] to my OUT[4:7];
+  wire ctrc's OUT[0:1] to my OUT[8:9];
+}
+/*===================================================================================
+ Ctr12         
+    X         
+    X         
+    X         
+    X         
+    X         
+    X         
+  A a 12-bit counter in 6 slices, arranged as a vertical line (carry chain used).
+ ===================================================================================*/
+Ctr12(loc) input:(CLK,CIN) output:(OUT[12],COUT){
+  ctrc Ctr4 loc:xy(0,4);
+  ctrb Ctr4 loc:xy(0,2);
+  ctra Ctr4 loc:xy(0,0);
+  //clocks
+  wire my CLK to ctra's CLK, ctrb's CLK, ctrc's CLK;
+  //carry chains
+  wire my CIN to ctra's CIN;
+  wire ctra's COUT to ctrb's CIN;
+  wire ctrb's COUT to ctrc's CIN;
+  wire ctrc's COUT to my COUT;
+  //output
+  wire ctra's OUT[0:3] to my OUT[0:3];
+  wire ctrb's OUT[0:3] to my OUT[4:7];
+  wire ctrc's OUT[0:3] to my OUT[8:11];
+}
+ /*====================================================================================
+  4:1  mux
+  Designer:   Victor Yurkovsky  
+  Date:       September 6 2012
+
+inputs:
+outputs:
+====================================================================================*/
+Mux4(loc) input(IN[4],SEL[2]) output(OUT){
+  sl SLICEL loc:xy(0,0) cfg:{ 
+    BXINV:BX_B F5USED:0 /*invert BX; 0 will select F*/
+    F:#LUT:D=(~A3*A1)+(A3*A2)
+    G:#LUT:D=(~A3*A1)+(A3*A2)
+  };  
+  wire my IN[0] to sl's F1;
+  wire my IN[1] to sl's F2;
+  wire my SEL[0] to sl's F3;
+  
+  wire my IN[2] to sl's G1;
+  wire my IN[3] to sl's G2;
+  wire my SEL[0] to sl's G3;
+  
+  wire my SEL[1] to sl's BX;
+  
+  wire sl's F5 to my OUT;
+ }

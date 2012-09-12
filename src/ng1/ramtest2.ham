@@ -1,0 +1,40 @@
+/*====================================================================================
+  ramtest1
+  
+  Designer:   Victor Yurkovsky  
+  Date:       September 11 2012
+  
+  Connect switches to address bus of PortA (9-bit port)
+  Connect the output of portA  to the address bus of portB.
+  Display output of portB
+  
+  The .ram file stores initialization data; each line is 32 bytes or 16 words.
+  so placing ...1110 at INIT_00 means that for opcode address 0 we will indirect
+  through _word_ 16 (first word at INIT_01).  For 1, word 17
+====================================================================================*/
+#include "DigilentSpartan3.ham"
+top() {
+  clk CLK_1Hz;
+  // Debug output
+  bug BugOut16 loc:xy(6,0);
+  //switches for addressing
+  sw Switches;
+  // the ram...
+  ram Ramb16_S9_S18 loc:RAMB16_X0Y0 fromfile:test.ram ;
+  wire clk's CLK to ram's CLK;
+  wire my vcc to ram's ENA, ram's ENB;  //enable both ports
+  wire my vcc to ram's WEA, ram's WEB;  //disable writing
+  wire my vcc to ram's SSRA, ram's SSRB; //disable reset
+  //
+  wire sw's OUT[0:7] to ram's ADDRA[0:7];
+  wire my gnd to ram's ADDRA[8:10];
+  wire ram's DOA[0:8] to ram's ADDRB[0:8];
+  wire my gnd to ram's ADDRB[9];
+  // ram output
+  wire ram's DOB[0:15] to bug's IN[0:15];
+//  wire ram's DOB[0:11] to bug's IN[0:11];
+//  wire ram's DOB[16:17] to bug's IN[12:13];
+//  wire my gnd to bug's IN[14], bug's IN[15];
+
+}
+ 

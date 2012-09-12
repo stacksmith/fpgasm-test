@@ -1,0 +1,16 @@
+org $80
+start:
+
+lab: equ $1234
+
+loop:
+  nop
+  nop
+another:
+  nop
+  ret /*whatever*/
+  nop
+  loop
+  another
+lab1:
+
