@@ -4,13 +4,7 @@
   Designer:   Victor Yurkovsky  
   Date:       September 11 2012
   
-  Connect switches to address bus of PortA (9-bit port)
-  Connect the output of portA  to the address bus of portB.
-  Display output of portB
-  
-  The .ram file stores initialization data; each line is 32 bytes or 16 words.
-  so placing ...1110 at INIT_00 means that for opcode address 0 we will indirect
-  through _word_ 16 (first word at INIT_01).  For 1, word 17
+  Switches read data on the 9-bit port...
 ====================================================================================*/
 #include "DigilentSpartan3.ham"
 top() {
@@ -28,13 +22,10 @@ top() {
   //
   wire sw's OUT[0:7] to ram's ADDRA[0:7];
   wire my gnd to ram's ADDRA[8:10];
-  wire ram's DOA[0:8] to ram's ADDRB[0:8];
-  wire my gnd to ram's ADDRB[9];
+  wire my gnd to ram's ADDRB[0:9];
   // ram output
-  wire ram's DOB[0:15] to bug's IN[0:15];
-//  wire ram's DOB[0:11] to bug's IN[0:11];
-//  wire ram's DOB[16:17] to bug's IN[12:13];
-//  wire my gnd to bug's IN[14], bug's IN[15];
+  wire ram's DOA[0:8] to bug's IN[0:8];
+  wire my gnd to bug's IN[9:15];
 
 }
  
