@@ -4,8 +4,7 @@
   Designer:   Victor Yurkovsky  
   Date:       September 11 2012
   
-  Connecting address bus to switches, data to debugger to make sure
-  the dual-ported Ramb16_S9_S18 works
+  Switches read data on the 9-bit port...
 ====================================================================================*/
 #include "DigilentSpartan3.ham"
 top() {
@@ -15,7 +14,7 @@ top() {
   //switches for addressing
   sw Switches;
   // the ram...
-  ram Ramb16_S9_S18 loc:RAMB16_X0Y0 fromfile:ramtest.ram ;
+  ram Ramb16_S9_S18 loc:RAMB16_X0Y0 fromfile:test.ram ;
   wire clk's CLK to ram's CLK;
   wire my vcc to ram's ENA, ram's ENB;  //enable both ports
   wire my vcc to ram's WEA, ram's WEB;  //disable writing
@@ -23,10 +22,10 @@ top() {
   //
   wire sw's OUT[0:7] to ram's ADDRA[0:7];
   wire my gnd to ram's ADDRA[8:10];
-  wire sw's OUT[0:7] to ram's ADDRB[0:7];
-  wire my gnd to ram's ADDRB[8:9];
+  wire my gnd to ram's ADDRB[0:9];
   // ram output
-  wire ram's DOB[0:15] to bug's IN[0:15];
+  wire ram's DOA[0:8] to bug's IN[0:8];
+  wire my gnd to bug's IN[9:15];
 //  wire ram's DOB[0:11] to bug's IN[0:11];
 //  wire ram's DOB[16:17] to bug's IN[12:13];
 //  wire my gnd to bug's IN[14], bug's IN[15];
