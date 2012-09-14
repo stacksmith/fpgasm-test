@@ -12,7 +12,7 @@ test.ncd: test.xdl
 	cp test.ncd ../../../SHARED/FPGASM/TEST/xdl/test.ncd
 
 testrt.ncd: test.ncd
-	par -p  -w test.ncd testrt.ncd -nopad >par.log
+	par -p  -w test.ncd testrt.ncd #//-nopad 
 #vy-put in shared directory for examination later.
 	cp testrt.ncd ../../../SHARED/FPGASM/TEST/xdl/testrt.ncd
 
