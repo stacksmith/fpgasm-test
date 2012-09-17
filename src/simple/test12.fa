@@ -1,0 +1,19 @@
+#include "DigilentSpartan3.ham"
+//====================================================================================
+// Test12
+// ctr4 - an optimally setup 4-bit counter...
+//====================================================================================
+
+
+
+top() {
+  clk CLK_1Hz;
+  pc Ctr4 loc:xy(10,10);
+  wire clk's CLK to pc's CLK;
+  wire my vcc to pc's CIN;
+  led Leds;
+  wire pc's OUT[0:3] to led's IN[0:3];
+  wire my gnd to led's IN[4], led's IN[5], led's IN[6], led's IN[7];
+
+}
+ 

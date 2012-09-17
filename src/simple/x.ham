@@ -1,0 +1,35 @@
+/*====================================================================================
+  File:       x
+  Board:      Digilent Spartan 3 demo board
+  Designer:   Victor Yurkovsky 
+  Date:       September 1 2012
+
+ Trying to merge multiple instances
+====================================================================================*/
+#include "DigilentSpartan3.ham"
+//====================================================================================
+// Goal: blink LED0
+//====================================================================================
+top() {
+ sw Switches;
+ led0 Led0;
+ led1 Led1;
+ 
+ x1 SLICEL cfg:{F:#LUT:D=ABCD FXMUX:F XUSED:0 };
+  
+ wire sw OUT[0] to x1 F1;
+ wire sw OUT[1] to x1 F2;
+ wire sw OUT[2] to x1 F3;
+ wire sw OUT[3] to x1 F4;
+ wire x1 X to led0's IN;
+
+ merge input(G1,G2,G3,G4) output(Y) cfg:{G:#LUT:D=EFGH GYMUX:G YUSED:0};
+  
+ wire sw OUT[4] to x1 G1;
+ wire sw OUT[5] to x1 G2;
+ wire sw OUT[6] to x1 G3;
+ wire sw OUT[7] to x1 G4;
+ wire x1 Y to led1's IN;
+
+}
+ 
