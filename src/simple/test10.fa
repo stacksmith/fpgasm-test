@@ -1,5 +1,5 @@
 // FPGA Hammer test
-#include "DigilentSpartan3.ham"
+#include "DigilentSpartan3.fai"
 //====================================================================================
 // seven-segment output 
 // All 4 digits from low 4 switches. NOT WORKING YET

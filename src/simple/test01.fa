@@ -7,7 +7,7 @@
   A very simple test.  Connects the clock via a clock buffer to an LED.  I use a 
   testrig that generates a very slow (about 1Hz) clock for testing.
 ====================================================================================*/
-#include "DigilentSpartan3.ham"
+#include "DigilentSpartan3.fai"
 //====================================================================================
 // Goal: blink LED0
 //====================================================================================

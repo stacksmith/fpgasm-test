@@ -1,3 +1,3 @@
 rm ../../xdl/test.xdl
-fpgasm $1.ham ../../xdl/test.xdl
+fpgasm $1.fa ../../xdl/test.xdl
 make -C ../../xdl/ $2

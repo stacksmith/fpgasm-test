@@ -8,7 +8,7 @@
   better than PAR..
 
 ===================================================================================*/
-#include "DigilentSpartan3.ham"
+#include "DigilentSpartan3.fai"
 top() {
   clk CLK_1Hz;
   //-------------------------------

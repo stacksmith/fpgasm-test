@@ -1,4 +1,4 @@
-#include "DigilentSpartan3.ham"
+#include "DigilentSpartan3.fai"
 /*====================================================================================
   Test16
   Driving an 18 ram from  a 10-bit pc. 

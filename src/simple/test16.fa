@@ -3,7 +3,7 @@
   Driving a ram from  a 12-bit pc.  Clean layout.  FPGA editor's router is actually
   better than PAR..
 ====================================================================================*/
-#include "DigilentSpartan3.ham"
+#include "DigilentSpartan3.fai"
 
 top() {
   clk CLK_1Hz;

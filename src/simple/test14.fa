@@ -7,7 +7,8 @@
  Testing a RAM.  A 9-bit ram, address connected to sw0:7, output to 8 leds.
  Using switches address is set...
 ===================================================================================*/
-#include "DigilentSpartan3.ham"
+#include "DigilentSpartan3.fai"
+
 //====================================================================================
 // Test14
 //====================================================================================

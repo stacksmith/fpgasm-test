@@ -6,7 +6,7 @@
 
  Test10.  Connect 8 switches to 8 LEDs, accordingly.
 ====================================================================================*/
-#include "DigilentSpartan3.ham"
+#include "DigilentSpartan3.fai"
 top() {
   sw Switches;
   led Leds;

@@ -6,8 +6,7 @@
 
  // 8-bit counter (now in Spartan3) to 8 leds.
 ===================================================================================*/
-#include "DigilentSpartan3.ham"
-
+#include "DigilentSpartan3.fai"
 
 top() {
   clk CLK_1Hz;
