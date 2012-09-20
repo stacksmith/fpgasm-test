@@ -1,9 +1,9 @@
 FPGASM TEST
 ===========
 The src directory contains test source for fpgasm.  Note that the new extension format is:
-.fa  for fpgasm top files
-.fai for fpgasm include files
-.ham - old extension, deprecated
+* .fa  for fpgasm top files
+* .fai for fpgasm include files
+* .ham - old extension, deprecated
 
 To quickly check for errors,
 
